@@ -1,5 +1,5 @@
 -- ===========================
--- CONFIGURAÇÕES BÁSICAS
+-- BASIC CONFIGURATIONS
 -- ===========================
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
@@ -31,7 +31,7 @@ vim.opt.shiftwidth = 4
 vim.opt.smartindent = true
 
 -- ===========================
--- INSTALAÇÃO DO LAZY.NVIM
+-- LAZY.NVIM INSTALLATION
 -- ===========================
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -454,11 +454,13 @@ require("lazy").setup({
                     ["<C-b>"] = cmp.mapping.scroll_docs(-4),
                     ["<C-f>"] = cmp.mapping.scroll_docs(4),
                     ["<C-y>"] = cmp.mapping.confirm({ select = true }),
-                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+                    ["<CR>"] = cmp.mapping(function(fallback)
+                        fallback()
+                    end, { "i", "s" }),
                     ["<C-Space>"] = cmp.mapping.complete({}),
                     ["<Tab>"] = cmp.mapping(function(fallback)
                         if cmp.visible() then
-                            cmp.select_next_item()
+                            cmp.confirm({ select = true })
                         elseif luasnip.expand_or_locally_jumpable() then
                             luasnip.expand_or_jump()
                         else
@@ -466,9 +468,7 @@ require("lazy").setup({
                         end
                     end, { "i", "s" }),
                     ["<S-Tab>"] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                            cmp.select_prev_item()
-                        elseif luasnip.locally_jumpable(-1) then
+                        if luasnip.locally_jumpable(-1) then
                             luasnip.jump(-1)
                         else
                             fallback()
@@ -483,8 +483,23 @@ require("lazy").setup({
                 },
             })
 
+            local cmdline_mappings = vim.tbl_extend("force", cmp.mapping.preset.cmdline(), {
+                ["<Down>"] = cmp.mapping(cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }), { "c" }),
+                ["<Up>"] = cmp.mapping(cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert }), { "c" }),
+                ["<CR>"] = cmp.mapping(function(fallback)
+                    fallback()
+                end, { "c" }),
+                ["<Tab>"] = cmp.mapping(function(fallback)
+                    if cmp.visible() then
+                        cmp.confirm({ select = true })
+                    else
+                        fallback()
+                    end
+                end, { "c" }),
+            })
+
             cmp.setup.cmdline(":", {
-                mapping = cmp.mapping.preset.cmdline(),
+                mapping = cmdline_mappings,
                 sources = cmp.config.sources({
                     { name = "path" },
                 }, {
@@ -494,7 +509,7 @@ require("lazy").setup({
             })
 
             cmp.setup.cmdline({ "/", "?" }, {
-                mapping = cmp.mapping.preset.cmdline(),
+                mapping = cmdline_mappings,
                 sources = {
                     { name = "buffer" },
                 },
@@ -618,58 +633,10 @@ require("lazy").setup({
             },
         },
     },
-
-    {
-        "benlubas/molten-nvim",
-        version = "^1.0.0",
-        dependencies = { "3rd/image.nvim" },
-        build = ":UpdateRemotePlugins",
-        init = function()
-            vim.g.molten_image_provider = "image.nvim"
-            vim.g.molten_output_win_max_height = 20
-            vim.g.molten_auto_open_output = false
-            vim.g.molten_virt_text_output = true
-            vim.g.molten_wrap_output = true
-        end,
-        keys = {
-            { "<leader>mi", "<cmd>MoltenInit<cr>",                  desc = "Molten Init",            silent = true },
-            { "<leader>me", "<cmd>MoltenEvaluateOperator<cr>",      desc = "Molten Eval Operator",   silent = true },
-            { "<leader>ml", "<cmd>MoltenEvaluateLine<cr>",          desc = "Molten Eval Line",       silent = true },
-            { "<leader>mr", "<cmd>MoltenReevaluateCell<cr>",        desc = "Molten Re-eval Cell",    silent = true },
-            { "<leader>md", "<cmd>MoltenDelete<cr>",                desc = "Molten Delete Cell",     silent = true },
-            { "<leader>mh", "<cmd>MoltenHideOutput<cr>",            desc = "Molten Hide Output",     silent = true },
-            { "<leader>ms", "<cmd>noautocmd MoltenEnterOutput<cr>", desc = "Molten Show/Enter Output", silent = true },
-            { "<leader>mx", "<cmd>MoltenOpenInBrowser<cr>",         desc = "Molten Open in Browser", silent = true },
-            { "<leader>mI", "<cmd>MoltenImagePopup<cr>",            desc = "Molten Image Popup",     silent = true },
-            { "<leader>mR", "<cmd>MoltenRestart<cr>",               desc = "Molten Restart Kernel",  silent = true },
-            { "<leader>mS", "<cmd>MoltenSave<cr>",                  desc = "Molten Save",            silent = true },
-            { "<leader>mL", "<cmd>MoltenLoad<cr>",                  desc = "Molten Load",            silent = true },
-            { "<leader>mp", "<cmd>MoltenExportOutput<cr>",          desc = "Molten Export to ipynb", silent = true },
-            { "<leader>mi", "<cmd>MoltenImportOutput<cr>",          desc = "Molten Import from ipynb", silent = true },
-            { "<leader>mv", ":<C-u>MoltenEvaluateVisual<cr>gv",     desc = "Molten Eval Visual",     silent = true, mode = "v" },
-        },
-    },
-
-    {
-        "3rd/image.nvim",
-        opts = {
-            backend = "kitty",
-            integrations = {
-                markdown = { enabled = true },
-                neorg = { enabled = true },
-            },
-            max_width = 100,
-            max_height = 12,
-            max_width_window_percentage = math.ceil(50),
-            max_height_window_percentage = math.ceil(20),
-            window_overlap_clear_enabled = true,
-            window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "" },
-        },
-    },
 })
 
 -- ===========================
--- KEYMAPS ADICIONAIS
+-- ADDITIONAL KEYMAPS
 -- ===========================
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Focus left window" })
