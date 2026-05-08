@@ -46,6 +46,18 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+local function safe_ts_lang(lang)
+    local ts = vim.treesitter
+    if not ts or not ts.query or not ts.query.get then
+        return "text"
+    end
+    local ok = pcall(ts.query.get, lang, "highlights")
+    if ok then
+        return lang
+    end
+    return "text"
+end
+
 -- ===========================
 -- PLUGINS
 -- ===========================
@@ -90,11 +102,11 @@ require("lazy").setup({
                 enabled = true,
                 view = "cmdline_popup",
                 format = {
-                    cmdline = { pattern = "^:", icon = "", lang = "vim" },
-                    search_down = { kind = "search", pattern = "^/", icon = " ", lang = "regex" },
-                    search_up = { kind = "search", pattern = "^%?", icon = " ", lang = "regex" },
-                    filter = { pattern = "^:%s*!", icon = "$", lang = "bash" },
-                    lua = { pattern = { "^:%s*lua%s+", "^:%s*lua%s*=%s*", "^:%s*=%s*" }, icon = "", lang = "lua" },
+                    cmdline = { pattern = "^:", icon = "", lang = safe_ts_lang("vim") },
+                    search_down = { kind = "search", pattern = "^/", icon = " ", lang = safe_ts_lang("regex") },
+                    search_up = { kind = "search", pattern = "^%?", icon = " ", lang = safe_ts_lang("regex") },
+                    filter = { pattern = "^:%s*!", icon = "$", lang = safe_ts_lang("bash") },
+                    lua = { pattern = { "^:%s*lua%s+", "^:%s*lua%s*=%s*", "^:%s*=%s*" }, icon = "", lang = safe_ts_lang("lua") },
                     help = { pattern = "^:%s*he?l?p?%s+", icon = "" },
                 },
             },
@@ -228,17 +240,54 @@ require("lazy").setup({
                     return vim.fn.executable("make") == 1
                 end,
             },
+            "nvim-telescope/telescope-ui-select.nvim",
+            "nvim-telescope/telescope-live-grep-args.nvim",
         },
         keys = {
             { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find Files" },
             { "<leader>fg", "<cmd>Telescope live_grep<cr>",  desc = "Live Grep" },
+            { "<leader>fG", "<cmd>Telescope live_grep_args<cr>", desc = "Live Grep Args" },
+            { "<leader>fs", "<cmd>Telescope grep_string<cr>", desc = "Grep String" },
             { "<leader>fb", "<cmd>Telescope buffers<cr>",    desc = "Buffers" },
             { "<leader>fh", "<cmd>Telescope help_tags<cr>",  desc = "Help Tags" },
             { "<leader>fr", "<cmd>Telescope oldfiles<cr>",   desc = "Recent Files" },
+            { "<leader>f/", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Buffer Search" },
+            { "<leader>fR", "<cmd>Telescope resume<cr>", desc = "Resume Telescope" },
+            { "<leader>fc", "<cmd>Telescope commands<cr>", desc = "Commands" },
+            { "<leader>fgf", "<cmd>Telescope git_files<cr>", desc = "Git Files" },
+            { "<leader>fL", "<cmd>Telescope lsp_document_symbols<cr>", desc = "LSP Document Symbols" },
+            { "<leader>fW", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "LSP Workspace Symbols" },
         },
         config = function()
             require("telescope").setup({
                 defaults = {
+                    prompt_prefix = "   ",
+                    selection_caret = " ",
+                    path_display = { "smart" },
+                    sorting_strategy = "ascending",
+                    layout_strategy = "flex",
+                    layout_config = {
+                        horizontal = {
+                            prompt_position = "top",
+                            preview_width = 0.55,
+                            mirror = false,
+                        },
+                        vertical = {
+                            prompt_position = "top",
+                            preview_height = 0.55,
+                        },
+                        flex = {
+                            flip_columns = 120,
+                        },
+                    },
+                    file_ignore_patterns = {
+                        ".git/",
+                        "node_modules/",
+                        "dist/",
+                        "build/",
+                        "target/",
+                        ".venv/",
+                    },
                     mappings = {
                         i = {
                             ["<C-u>"] = false,
@@ -246,8 +295,18 @@ require("lazy").setup({
                         },
                     },
                 },
+                extensions = {
+                    ["ui-select"] = {
+                        require("telescope.themes").get_dropdown({}),
+                    },
+                    live_grep_args = {
+                        auto_quoting = true,
+                    },
+                },
             })
             pcall(require("telescope").load_extension, "fzf")
+            pcall(require("telescope").load_extension, "ui-select")
+            pcall(require("telescope").load_extension, "live_grep_args")
         end,
     },
 
@@ -255,7 +314,11 @@ require("lazy").setup({
         "nvim-treesitter/nvim-treesitter",
         build = ":TSUpdate",
         config = function()
-            require("nvim-treesitter.configs").setup({
+            local ok, configs = pcall(require, "nvim-treesitter.configs")
+            if not ok then
+                return
+            end
+            configs.setup({
                 ensure_installed = { "lua", "python", "c", "cpp", "java", "vim", "vimdoc" },
                 auto_install = true,
                 highlight = {
