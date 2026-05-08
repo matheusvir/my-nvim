@@ -1,6 +1,6 @@
 # Este é apenas um repositório para minha config pessoal do nvim
 ## Requisitos
-- Sistema unix (Linux ou MacOS), neovim >= 0.11.0
+- Sistema unix (Linux ou MacOS), neovim >= 0.12.0
 
 ## Como instalar
 Basta executar:
