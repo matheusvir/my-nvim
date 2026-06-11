@@ -1,4 +1,5 @@
-# Este é apenas um repositório para minha config pessoal do nvim
+# Meu Nvim
+Este é apenas um repositório para minha config pessoal do nvim
 ## Requisitos
 - Sistema unix (Linux ou MacOS)
 - Neovim >= 0.12.0
