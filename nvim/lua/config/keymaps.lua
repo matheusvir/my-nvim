@@ -1,0 +1,13 @@
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Focus left window" })
+vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Focus right window" })
+vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Focus lower window" })
+vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Focus upper window" })
+vim.keymap.set("n", "<leader>w", "<cmd>w<cr>", { desc = "Save file" })
+vim.keymap.set("n", "<leader>q", "<cmd>q<cr>", { desc = "Quit" })
+
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Next Diagnostic" })
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous Diagnostic" })
+vim.keymap.set("n", "gl", vim.diagnostic.open_float, { desc = "Show Diagnostic" })
+vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Copy to clipboard" })
+vim.keymap.set({ "n", "v" }, "<leader>p", '"+p', { desc = "Paste to clipboard" })
