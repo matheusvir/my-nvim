@@ -1,3 +1,5 @@
+vim.g.autoformat_enabled = false
+
 vim.api.nvim_create_autocmd("TextYankPost", {
     desc = "Highlight when yanking text",
     group = vim.api.nvim_create_augroup("highlight-yank", { clear = true }),
@@ -9,7 +11,9 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 vim.api.nvim_create_autocmd("BufWritePre", {
     pattern = "*",
     callback = function()
-        vim.lsp.buf.format({ async = false })
+        if vim.g.autoformat_enabled == true then
+            pcall(vim.lsp.buf.format, { async = false })
+        end
     end,
 })
 

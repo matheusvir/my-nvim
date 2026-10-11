@@ -11,3 +11,9 @@ vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous Diagnosti
 vim.keymap.set("n", "gl", vim.diagnostic.open_float, { desc = "Show Diagnostic" })
 vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Copy to clipboard" })
 vim.keymap.set({ "n", "v" }, "<leader>p", '"+p', { desc = "Paste to clipboard" })
+
+vim.keymap.set("n", "<leader>tf", function()
+    vim.g.autoformat_enabled = not vim.g.autoformat_enabled
+    print("Autoformat " .. (vim.g.autoformat_enabled and "enabled" or "disabled"))
+end, { desc = "Toggle autoformat" })
+vim.keymap.set("n", "<leader>f", vim.lsp.buf.format, { desc = "Format buffer" })

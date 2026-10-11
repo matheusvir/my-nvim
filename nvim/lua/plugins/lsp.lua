@@ -10,6 +10,9 @@ return {
                 "clangd",
                 "pyright",
                 "lua-language-server",
+                "gopls",
+                "typescript-language-server",
+                "sqls",
             },
         },
         config = function(_, opts)
@@ -39,6 +42,9 @@ return {
                 "lua_ls",
                 "pyright",
                 "clangd",
+                "gopls",
+                "ts_ls",
+                "sqls",
             },
         },
     },
@@ -82,6 +88,9 @@ return {
             local servers = {
                 pyright = {},
                 clangd = {},
+                gopls = {},
+                ts_ls = {},
+                sqls = {},
                 lua_ls = {
                     settings = {
                         Lua = {

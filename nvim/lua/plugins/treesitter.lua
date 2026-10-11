@@ -7,7 +7,7 @@ return {
             return
         end
         configs.setup({
-            ensure_installed = { "lua", "python", "c", "cpp", "java", "vim", "vimdoc" },
+            ensure_installed = { "lua", "python", "c", "cpp", "java", "vim", "vimdoc", "go", "javascript", "typescript", "tsx", "sql" },
             auto_install = true,
             highlight = {
                 enable = true,
